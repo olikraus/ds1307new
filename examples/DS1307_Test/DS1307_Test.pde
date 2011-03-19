@@ -66,7 +66,7 @@ void setup()
     RTC.minute = 46;
     RTC.hour = 12;
     RTC.dow = 1;                          // SUN=7, MON=1, TUE=2, WED=3, THU=4, FRI=5, SAT=6
-    RTC.date = 1;
+    RTC.day = 1;
     RTC.month = 11;
     RTC.year = 2010;
     RTC.setTime();
@@ -124,14 +124,14 @@ void loop()
     Serial.print(RTC.second, DEC);
   }
   Serial.print(" ");
-  if (RTC.date < 10)                    // correct date if necessary
+  if (RTC.day < 10)                    // correct date if necessary
   {
     Serial.print("0");
-    Serial.print(RTC.date, DEC);
+    Serial.print(RTC.day, DEC);
   }
   else
   {
-    Serial.print(RTC.date, DEC);
+    Serial.print(RTC.day, DEC);
   }
   Serial.print("-");
   if (RTC.month < 10)                   // correct month if necessary
