@@ -41,13 +41,33 @@ class DS1307new
     uint8_t second;
     uint8_t minute;
     uint8_t hour; 
-    uint8_t dow;
-    uint8_t date;
+    uint8_t dow;			// day of week
+    uint8_t day;
     uint8_t month;
     uint16_t year;
+  
+  
     uint8_t ctrl;
 
+    void fillByCDN(uint16_t _cdn);
+    void fillByTime2000(uint32_t _time2000);
+    void fillByHMS(uint8_t h, uint8_t m, uint8_t s);
+    void fillByYMD(uint8_t y, uint8_t m, uint8_t d);
+
   private:
+    uint16_t ydn;		// day within the year (year day number)
+    uint16_t cdn;		// days after 2000-01-01 (century day number)
+    uint32_t time2000;	// seconds after 2000-01-01 00:00 (max value: 2136-02-07 06:28:15)
+  
+    uint8_t is_leap_year(void);
+    void calculate_ydn(void);			// calculate ydn from year, month & day
+    void calculate_cdn(void);			// calculate cdn from year & ydn
+    void calculate_time2000(void);		// calculate time2000 from cdn, hour, minute & second
+
+    uint16_t _corrected_year_day_number(void);
+    void calculate_month_by_year_and_ydn(void);
+    void calculate_day_by_month_year_and_ydn(void);
+
     uint8_t dec2bcd(uint8_t num);
     uint8_t bcd2dec(uint8_t num);
 };
