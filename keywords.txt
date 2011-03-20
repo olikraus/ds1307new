@@ -24,10 +24,14 @@ second	KEYWORD2
 minute	KEYWORD2
 hour	KEYWORD2
 dow	KEYWORD2
-date	KEYWORD2
+day	KEYWORD2
 month	KEYWORD2
 year	KEYWORD2
 ctrl	KEYWORD2
+fillByCDN	KEYWORD2
+fillByTime2000	KEYWORD2
+fillByHMS	KEYWORD2
+fillByYMD	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
