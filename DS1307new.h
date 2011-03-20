@@ -4,8 +4,8 @@
 // # Author     : Peter Schmelzer
 // # Contributor: Oliver Kraus
 // # contact    : schmelle2@googlemail.com
-// # Date       : 2010-11-01
-// # Version    : 0.2
+// # Date       : 2011-03-19
+// # Version    : 1.10
 // # License    : cc-by-sa-3.0
 // #
 // # Description:
