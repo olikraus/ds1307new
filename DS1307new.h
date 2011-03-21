@@ -54,11 +54,11 @@ class DS1307new
     void fillByHMS(uint8_t h, uint8_t m, uint8_t s);
     void fillByYMD(uint8_t y, uint8_t m, uint8_t d);
 
-  private:
     uint16_t ydn;		// day within the year (year day number)
     uint16_t cdn;		// days after 2000-01-01 (century day number)
     uint32_t time2000;	// seconds after 2000-01-01 00:00 (max value: 2136-02-07 06:28:15)
   
+  private:
     uint8_t is_leap_year(void);
     void calculate_ydn(void);			// calculate ydn from year, month & day
     void calculate_cdn(void);			// calculate cdn from year & ydn
