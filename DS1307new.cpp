@@ -4,8 +4,8 @@
 // # Author     : Peter Schmelzer
 // # Contributor: Oliver Kraus
 // # contact    : info@schmelle2.de
-// # Date       : 2011-03-19
-// # Version    : 1.10
+// # Date       : 2010-11-01
+// # Version    : 1.00
 // # License    : cc-by-sa-3.0
 // #
 // # Description:
@@ -79,6 +79,7 @@ void DS1307new::getTime(void)
   minute = bcd2dec(Wire.receive());     // aquire minutes
   hour = bcd2dec(Wire.receive());       // aquire hours
   dow = bcd2dec(Wire.receive());        // aquire dow (Day Of Week)
+  dow--;							//  correction from RTC format (1..7) to lib format (0..6). Useless, because it will be overwritten
   day = bcd2dec(Wire.receive());       // aquire day
   month = bcd2dec(Wire.receive());      // aquire month
   year = bcd2dec(Wire.receive());       // aquire year...
@@ -87,6 +88,7 @@ void DS1307new::getTime(void)
   // recalculate all other values
   calculate_ydn();
   calculate_cdn();
+  calculate_dow();
   calculate_time2000();
 }
 
@@ -99,7 +101,7 @@ void DS1307new::setTime(void)
   Wire.send(dec2bcd(second) | 0x80);   // set seconds (clock is stopped!)
   Wire.send(dec2bcd(minute));           // set minutes
   Wire.send(dec2bcd(hour) & 0x3f);      // set hours (24h clock!)
-  Wire.send(dec2bcd(dow));              // set dow (Day Of Week)
+  Wire.send(dec2bcd(dow+1));              // set dow (Day Of Week), do conversion from internal to RTC format
   Wire.send(dec2bcd(day));             // set day
   Wire.send(dec2bcd(month));            // set month
   Wire.send(dec2bcd(year));             // set year
@@ -174,8 +176,8 @@ void DS1307new::fillByCDN(uint16_t _cdn)
   for(;;)
   {
     days_per_year = 365;
-    days_per_year += is_leap_year();
-    if ( cdn >= days_per_year )
+    days_per_year += is_leap_year(y);
+    if ( _cdn >= days_per_year )
     {
       _cdn -= days_per_year;
       y++;
@@ -186,8 +188,10 @@ void DS1307new::fillByCDN(uint16_t _cdn)
   _cdn++;
   year = y;
   ydn = _cdn;
+  calculate_dow();
   calculate_month_by_year_and_ydn();
   calculate_day_by_month_year_and_ydn();
+  calculate_time2000();
 }
 
 /*
@@ -216,7 +220,7 @@ void DS1307new::fillByHMS(uint8_t h, uint8_t m, uint8_t s)
   calculate_time2000();
 }
 
-void DS1307new::fillByYMD(uint8_t y, uint8_t m, uint8_t d)
+void DS1307new::fillByYMD(uint16_t y, uint8_t m, uint8_t d)
 {
   // assign variables
   year = y;
@@ -225,6 +229,7 @@ void DS1307new::fillByYMD(uint8_t y, uint8_t m, uint8_t d)
   // recalculate depending values
   calculate_ydn();
   calculate_cdn();
+  calculate_dow();
   calculate_time2000();
 }
 
@@ -246,18 +251,18 @@ uint8_t DS1307new::bcd2dec(uint8_t num)
 
 /*
   Prototype:
-    uint8_t DS1307new::is_leap_year(void)
+    uint8_t DS1307new::is_leap_year(uint16_t y)
   Description:
     Calculate leap year
   Arguments:
-    this->year   year, e.g. 2011 for year 2011
+    y   		year, e.g. 2011 for year 2011
   Result:
     0           not a leap year
     1           leap year
 */
-uint8_t DS1307new::is_leap_year(void)
+uint8_t DS1307new::is_leap_year(uint16_t y)
 {
-  uint16_t y = year;
+  //uint16_t y = year;
    if ( 
           ((y % 4 == 0) && (y % 100 != 0)) || 
           (y % 400 == 0) 
@@ -296,7 +301,7 @@ void DS1307new::calculate_ydn(void)
   tmp1 <<=1;
   tmp2 -= tmp1;
   if ( tmp1 != 0 )
-    tmp2 += is_leap_year();
+    tmp2 += is_leap_year(year);
   ydn = tmp2;
 }
 
@@ -309,7 +314,7 @@ void DS1307new::calculate_ydn(void)
     this->y           year, e.g. 2011 for year 2011
     this->ydn	year day number (1st of Jan has the number 1)
   Result
-    this->cdn
+    this->cdn	days since 2000-01-01 (2000-01-01 has the cdn 0)
 */
 void DS1307new::calculate_cdn(void)
 {
@@ -320,13 +325,33 @@ void DS1307new::calculate_cdn(void)
   {
     y--;
     cdn += 365;
-    cdn += is_leap_year();
+    cdn += is_leap_year(y);
   }
+}
+
+/*
+  calculate day of week (dow)
+  0 = sunday .. 6 = saturday
+  Arguments:
+    this->cdn	days since 2000-01-01 (2000-01-01 has the cdn 0 and is a saturday)
+*/
+void DS1307new::calculate_dow(void)
+{
+  uint16_t tmp;
+  tmp = cdn;
+  tmp += 6;
+  tmp %= 7;
+  dow = tmp;
 }
 
 /*
   Calculate the seconds after 2000-01-01 00:00. The largest possible
   time is 2136-02-07 06:28:15
+  Arguments:
+    this->h         hour
+    this->m	minutes
+    this->s		seconds
+    this->cdn	days since 2000-01-01 (2000-01-01 has the cdn 0)
 */
 void DS1307new::calculate_time2000(void)
 {
@@ -341,11 +366,12 @@ void DS1307new::calculate_time2000(void)
   time2000 = t;
 }
 
+
 uint16_t DS1307new::_corrected_year_day_number(void)
 {
    uint8_t a;
    uint16_t corrected_ydn = ydn;
-   a = is_leap_year();
+   a = is_leap_year(year);
    if ( corrected_ydn > (uint8_t)(((uint8_t)59)+a) )
    {
       corrected_ydn += 2;

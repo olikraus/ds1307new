@@ -220,6 +220,7 @@ void mon_help(void)
   Serial.println("i          read and display current date and time");
   Serial.println("s <d> <t>  set date <d> and/or time <t>");
   Serial.println("l          list clock NVRAM");
+  Serial.println("d          print daylight saving date (Europa)");
   Serial.println("m <a> <v>  write value <v> to NVRAM location <a>");
   Serial.println("h          this help");
 }
@@ -266,17 +267,53 @@ void mon_print_time(uint16_t h, uint8_t m, uint8_t s)
   
 void mon_info(void)
 {
+  char wd[7][3] = { "So", "Mo", "Tu", "We", "Th", "Fr", "Sa" };
   RTC.getTime();
   Serial.print("RTC date: ");
   mon_print_date(RTC.year, RTC.month, RTC.day);
+  Serial.print(" ");
+  Serial.print(wd[RTC.dow]);
   Serial.print("  time: ");
   mon_print_time(RTC.hour, RTC.minute, RTC.second);
   Serial.println(""); 
   Serial.print(RTC.cdn, DEC);
-  Serial.print(" days and ");
+  Serial.print(" days or ");
   Serial.print(RTC.time2000, DEC);
-  Serial.println(" seconds since 2001-01-01 00:00:00");
+  Serial.println(" seconds since 2000-01-01 00:00:00");
 }
+
+void mon_dst(void)
+{
+  RTC.fillByYMD(RTC.year, 4, 1);		// first of April
+  if ( RTC.dow == 0 )
+    RTC.fillByCDN(RTC.cdn - 7);			// sunday before 
+  else
+    RTC.fillByCDN(RTC.cdn - RTC.dow);	// sunday before 
+  Serial.print("Summer time (turn forward the clock): ");
+  mon_print_date(RTC.year, RTC.month, RTC.day);
+  Serial.print(" (");
+  Serial.print(RTC.cdn, DEC);
+  Serial.print(" days or ");
+  Serial.print(RTC.time2000, DEC);
+  Serial.print(" seconds since 2000-01-01 00:00:00)");
+
+  Serial.println(""); 
+  
+  RTC.fillByYMD(RTC.year, 11, 1);		// first of november
+  if ( RTC.dow == 0 )
+    RTC.fillByCDN(RTC.cdn - 7);			// sunday before 
+  else
+    RTC.fillByCDN(RTC.cdn - RTC.dow);	// sunday before 
+  Serial.print("Winter time (turn back the clock): ");
+  mon_print_date(RTC.year, RTC.month, RTC.day);
+  Serial.print(" (");
+  Serial.print(RTC.cdn, DEC);
+  Serial.print(" days or ");
+  Serial.print(RTC.time2000, DEC);
+  Serial.print(" seconds since 2000-01-01 00:00:00)");
+}
+
+
 
 void mon_set_date_time(void)
 {
@@ -353,6 +390,8 @@ void mon_cmd(void)
     mon_list();
   else if ( mon_check('m') )
     mem_memory();
+  else if ( mon_check('d') )
+    mon_dst();
   else
     ;
     
