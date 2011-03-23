@@ -241,13 +241,13 @@ uint8_t DS1307new::isMEZSummerTime(void)
   
   // calculate start of summer time
   fillByYMD(year, 3, 30);
-  fillByHMS(1,0,0);
+  fillByHMS(2,0,0);
   fillByCDN(RTC.cdn - RTC.dow);	// sunday before
   summer_start = time2000;
   
   // calculate start of winter
   fillByYMD(year, 10, 31);
-  fillByHMS(2,0,0);
+  fillByHMS(3,0,0);
   fillByCDN(RTC.cdn - RTC.dow);	// sunday before
   winter_start = time2000;
   
