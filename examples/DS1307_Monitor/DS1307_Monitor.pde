@@ -284,6 +284,11 @@ void mon_info(void)
 
 void mon_dst(void)
 {
+  
+  Serial.print("Result from isMEZSummerTime(): ");
+  Serial.println(RTC.isMEZSummerTime(), DEC); 
+  
+  
   RTC.fillByYMD(RTC.year, 4, 1);		// first of April
   if ( RTC.dow == 0 )
     RTC.fillByCDN(RTC.cdn - 7);			// sunday before 
@@ -298,9 +303,6 @@ void mon_dst(void)
   Serial.print(" seconds since 2000-01-01 00:00:00)");
 
   Serial.println(""); 
-  
-  Serial.print("Result from isMEZSummerTime(): ");
-  Serial.println(RTC.isMEZSummerTime(), DEC); 
   
   RTC.fillByYMD(RTC.year, 11, 1);		// first of november
   if ( RTC.dow == 0 )
