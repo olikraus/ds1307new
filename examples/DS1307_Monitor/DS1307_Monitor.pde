@@ -299,6 +299,9 @@ void mon_dst(void)
 
   Serial.println(""); 
   
+  Serial.print("Result from isMEZSummerTime(): ");
+  Serial.println(RTC.isMEZSummerTime(), DEC); 
+  
   RTC.fillByYMD(RTC.year, 11, 1);		// first of november
   if ( RTC.dow == 0 )
     RTC.fillByCDN(RTC.cdn - 7);			// sunday before 
