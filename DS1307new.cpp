@@ -233,6 +233,33 @@ void DS1307new::fillByYMD(uint16_t y, uint8_t m, uint8_t d)
   calculate_time2000();
 }
 
+// check if current time is european summer time
+uint8_t DS1307new::isMEZSummerTime(void)
+{
+  uint32_t current_time, summer_start, winter_start;
+  current_time = time2000;
+  
+  // calculate start of summer time
+  fillByYMD(year, 3, 30);
+  fillByHMS(1,0,0);
+  fillByCDN(RTC.cdn - RTC.dow);	// sunday before
+  summer_start = time2000;
+  
+  // calculate start of winter
+  fillByYMD(year, 10, 31);
+  fillByHMS(2,0,0);
+  fillByCDN(RTC.cdn - RTC.dow);	// sunday before
+  winter_start = time2000;
+  
+  // restore time
+  fillByTime2000(current_time);
+  
+  // return result
+  if ( summer_start <= current_time && current_time < winter_start )
+    return 1;
+  return 0;  
+}
+
 
 // *********************************************
 // Private functions

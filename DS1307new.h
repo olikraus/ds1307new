@@ -49,15 +49,16 @@ class DS1307new
   
     uint8_t ctrl;
 
-    void fillByCDN(uint16_t _cdn);
-    void fillByTime2000(uint32_t _time2000);
-    void fillByHMS(uint8_t h, uint8_t m, uint8_t s);
-    void fillByYMD(uint16_t y, uint8_t m, uint8_t d);
-
     uint16_t ydn;		// day within the year (year day number, starts with 1 = 1. Jan)
     uint16_t cdn;		// days after 2000-01-01 (century day number, starts with 0)
     uint32_t time2000;	// seconds after 2000-01-01 00:00 (max value: 2136-02-07 06:28:15)
   
+    void fillByCDN(uint16_t _cdn);
+    void fillByTime2000(uint32_t _time2000);
+    void fillByHMS(uint8_t h, uint8_t m, uint8_t s);
+    void fillByYMD(uint16_t y, uint8_t m, uint8_t d);
+    uint8_t isMEZSummerTime(void);
+
   private:
     uint8_t is_leap_year(uint16_t y);
     void calculate_ydn(void);			// calculate ydn from year, month & day
