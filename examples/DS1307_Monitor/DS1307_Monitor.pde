@@ -284,16 +284,35 @@ void mon_info(void)
 
 void mon_dst(void)
 {
+  long m;
+  uint8_t isSummerTime;
+  uint16_t i;
+  
+  m = millis();
+  for( i = 0; i < 1000; i++ )
+    isSummerTime = RTC.isMEZSummerTime();
+  m = millis() - m;
   
   Serial.print("Result from isMEZSummerTime(): ");
-  Serial.println(RTC.isMEZSummerTime(), DEC); 
+  Serial.print(isSummerTime, DEC); 
+  Serial.print(" (");
+  Serial.print(m, DEC); 
+  Serial.print("ns + ");
+
+  m = millis();
+  for( i = 0; i < 1000; i++ )
+    RTC.fillByTime2000(RTC.time2000);			// speed measue
+  m = millis() - m;
+  Serial.print(m, DEC); 
+  Serial.println("us)");
   
-  
+  m = millis();
   RTC.fillByYMD(RTC.year, 4, 1);		// first of April
   if ( RTC.dow == 0 )
     RTC.fillByCDN(RTC.cdn - 7);			// sunday before 
   else
-    RTC.fillByCDN(RTC.cdn - RTC.dow);	// sunday before 
+    RTC.fillByCDN(RTC.cdn - RTC.dow);	// sunday before
+  m = millis() - m;
   Serial.print("Summer time (turn forward the clock): ");
   mon_print_date(RTC.year, RTC.month, RTC.day);
   Serial.print(" (");
