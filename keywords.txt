@@ -28,10 +28,14 @@ day	KEYWORD2
 month	KEYWORD2
 year	KEYWORD2
 ctrl	KEYWORD2
+ydn	KEYWORD2
+cdn	KEYWORD2
+time2000	KEYWORD2
 fillByCDN	KEYWORD2
 fillByTime2000	KEYWORD2
 fillByHMS	KEYWORD2
 fillByYMD	KEYWORD2
+isMEZSummerTime	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
