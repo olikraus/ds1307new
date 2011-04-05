@@ -62,6 +62,8 @@ void setup()
   if (TimeIsSet != 0xaa55)
   {
     RTC.stopClock();
+    
+#ifdef OLD_OBSOLETE_CODE
     RTC.second = 0;                       // DON'T USE '00' IF YOU MEAN '0' SECONDS!!!
     RTC.minute = 46;
     RTC.hour = 12;
@@ -69,6 +71,11 @@ void setup()
     RTC.day = 1;
     RTC.month = 11;
     RTC.year = 2010;
+#endif
+    
+    RTC.fillByYMD(2010,11,1);
+    RTC.fillByHMS(12,46,0);
+
     RTC.setTime();
     RTC.startClock();
     TimeIsSet = 0xaa55;
