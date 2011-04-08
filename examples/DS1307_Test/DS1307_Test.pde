@@ -69,14 +69,13 @@ void setup()
     RTC.fillByHMS(22,7,0);
     
     RTC.setTime();
-    RTC.startClock();
     TimeIsSet = 0xaa55;
     RTC.setRAM(54, (uint8_t *)&TimeIsSet, sizeof(uint16_t));
+    RTC.startClock();
   }
   else
   {
     RTC.getTime();
-    
   }
 
 /*
@@ -94,7 +93,6 @@ void setup()
   MESZ = RTC.isMEZSummerTime();
   Serial.print("MEZ=0, MESZ=1 : ");
   Serial.println(MESZ, DEC);    
-
   Serial.println();
 }
 
