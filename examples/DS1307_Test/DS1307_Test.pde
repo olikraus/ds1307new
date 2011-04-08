@@ -1,9 +1,9 @@
 // #############################################################################
 // #
 // # Scriptname : DS1307_Test.pde
-// # Author     : Peter Schmelzer
-// # Date       : 08.03.2011
-// # Version    : 1.01
+// # Author     : Peter Schmelzer, Oliver Kraus
+// # Date       : 2011-04-08
+// # Version    : 1.21
 // # License    : cc-by-sa-3.0
 // #
 // # Description:
@@ -66,7 +66,7 @@ void setup()
     RTC.stopClock();
         
     RTC.fillByYMD(2011,4,8);
-    RTC.fillByHMS(19,36,0);
+    RTC.fillByHMS(22,7,0);
     
     RTC.setTime();
     RTC.startClock();
@@ -89,10 +89,8 @@ void setup()
   Serial.println("DS1307 Testsketch");
   Serial.println("Format is \"hh:mm:ss dd-mm-yyyy DDD\"");
 
-  
   uint8_t MESZ;
 
-  
   MESZ = RTC.isMEZSummerTime();
   Serial.print("MEZ=0, MESZ=1 : ");
   Serial.println(MESZ, DEC);    
