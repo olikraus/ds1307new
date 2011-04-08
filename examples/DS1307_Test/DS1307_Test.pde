@@ -36,6 +36,8 @@ void setup()
   pinMode(2, INPUT);                    // Test of the SQW pin, D2 = INPUT
   digitalWrite(2, HIGH);                // Test of the SQW pin, D2 = Pullup on
 
+  Serial.begin(9600);
+
 /*
    PLEASE NOTICE: WE HAVE MADE AN ADDRESS SHIFT FOR THE NV-RAM!!!
                   NV-RAM ADDRESS 0x08 HAS TO ADDRESSED WITH ADDRESS 0x00=0
@@ -62,24 +64,19 @@ void setup()
   if (TimeIsSet != 0xaa55)
   {
     RTC.stopClock();
+        
+    RTC.fillByYMD(2011,4,8);
+    RTC.fillByHMS(19,36,0);
     
-#ifdef OLD_OBSOLETE_CODE
-    RTC.second = 0;                       // DON'T USE '00' IF YOU MEAN '0' SECONDS!!!
-    RTC.minute = 46;
-    RTC.hour = 12;
-    RTC.dow = 1;                          // SUN=7, MON=1, TUE=2, WED=3, THU=4, FRI=5, SAT=6
-    RTC.day = 1;
-    RTC.month = 11;
-    RTC.year = 2010;
-#endif
-    
-    RTC.fillByYMD(2010,11,1);
-    RTC.fillByHMS(12,46,0);
-
     RTC.setTime();
     RTC.startClock();
     TimeIsSet = 0xaa55;
     RTC.setRAM(54, (uint8_t *)&TimeIsSet, sizeof(uint16_t));
+  }
+  else
+  {
+    RTC.getTime();
+    
   }
 
 /*
@@ -89,9 +86,17 @@ void setup()
                                         // 0x11=4096Hz, 0x12=8192Hz, 0x13=32768Hz
   RTC.setCTRL();
 
-  Serial.begin(9600);
   Serial.println("DS1307 Testsketch");
   Serial.println("Format is \"hh:mm:ss dd-mm-yyyy DDD\"");
+
+  
+  uint8_t MESZ;
+
+  
+  MESZ = RTC.isMEZSummerTime();
+  Serial.print("MEZ=0, MESZ=1 : ");
+  Serial.println(MESZ, DEC);    
+
   Serial.println();
 }
 
@@ -177,6 +182,12 @@ void loop()
       Serial.print("SUN");
       break;
   }
+  Serial.print(" seconds since 1.1.2000:");
+  Serial.print(RTC.time2000, DEC);
+  uint8_t MESZ = RTC.isMEZSummerTime();
+  Serial.print(" MEZ=0, MESZ=1 : ");
+  Serial.print(MESZ, DEC);  
+  
   Serial.print(" - Address in NV-RAM is: ");
   RTC.getRAM(0, (uint8_t *)&lastAddr, sizeof(uint16_t));
   Serial.print(lastAddr, HEX);

@@ -95,7 +95,6 @@ void DS1307new::getTime(void)
 // Set time to the RTC chip in BCD format
 void DS1307new::setTime(void)
 {
-  year = year - 2000;                   // ...back to the root's :D
   Wire.beginTransmission(DS1307_ID);
   Wire.send(0x00);
   Wire.send(dec2bcd(second) | 0x80);   // set seconds (clock is stopped!)
@@ -104,7 +103,7 @@ void DS1307new::setTime(void)
   Wire.send(dec2bcd(dow+1));              // set dow (Day Of Week), do conversion from internal to RTC format
   Wire.send(dec2bcd(day));             // set day
   Wire.send(dec2bcd(month));            // set month
-  Wire.send(dec2bcd(year));             // set year
+  Wire.send(dec2bcd(year-2000));             // set year
   Wire.endTransmission();
 }
 
