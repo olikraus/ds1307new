@@ -42,6 +42,14 @@ DS1307new::DS1307new()
   Wire.begin();
 }
 
+uint8_t DS1307new::isPresent(void)         // check if the device is present
+{
+  Wire.beginTransmission(DS1307_ID);
+  Wire.send(0x00);                     
+  if (Wire.endTransmission() == 0) return 1;
+  return 0;
+}
+
 void DS1307new::stopClock(void)         // set the ClockHalt bit high to stop the rtc
 {
   Wire.beginTransmission(DS1307_ID);
@@ -137,7 +145,8 @@ void DS1307new::getRAM(uint8_t rtc_addr, uint8_t * rtc_ram, uint8_t rtc_quantity
   rtc_addr &= 63;                       // avoid wrong adressing. Adress 0x08 is now address 0x00...
   rtc_addr += 8;                        // ... and address 0x3f is now 0x38
   Wire.send(rtc_addr);                  // set CTRL Register Address
-  Wire.endTransmission();
+  if ( Wire.endTransmission() != 0 )
+    return;
   Wire.requestFrom(DS1307_ID, (int)rtc_quantity);
   while(!Wire.available())
   {
