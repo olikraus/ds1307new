@@ -30,6 +30,7 @@ class DS1307new
 {
   public:
     DS1307new();
+    uint8_t isPresent(void);
     void startClock(void);
     void stopClock(void);
     void setTime(void);

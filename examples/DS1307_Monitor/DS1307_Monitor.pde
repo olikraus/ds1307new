@@ -449,10 +449,41 @@ void exec(void)
 
 
 // *********************************************
+// LED flashing
+// *********************************************
+uint8_t LED_state = 0;
+uint32_t LED_next_change = 0L;
+uint32_t LED_on_time = 100L;
+uint32_t LED_off_time = 1000L;
+
+void LED_flashing(void)
+{
+  if ( LED_next_change < millis() )
+  {
+    if ( LED_state == 0 )
+    {
+      LED_next_change = millis() + LED_on_time;
+      LED_state = 1;
+    }
+    else
+    {
+      LED_next_change = millis() + LED_off_time;
+      LED_state = 0;
+    }
+    digitalWrite(13, LED_state);    
+  }
+}
+
+// *********************************************
 // MAIN (LOOP)
 // *********************************************
 void loop()
 {  
+  LED_flashing();
+  
+  if ( RTC.isPresent() == 0 )
+    LED_off_time = 100L;                // fast flashing if device is not available
+  
   if ( Serial.available() )
   {
     char c;
@@ -471,3 +502,4 @@ void loop()
     }
   }
 }
+
