@@ -1,0 +1,3 @@
+zip DS1307new_v1.xx.zip DS1307* keywords.txt
+zip -r DS1307new_v1.xx.zip . -i "*.pde"
+
