@@ -1,4 +1,4 @@
-// #############################################################################
+// ###########.read##################################################################
 // #
 // # Scriptname : DS1307new.cpp
 // # Author     : Peter Schmelzer
@@ -26,7 +26,6 @@
 // INCLUDE
 // *********************************************
 #include "Wire.h"
-#include "WProgram.h"
 #include "DS1307new.h"
 
 // *********************************************
@@ -45,7 +44,7 @@ DS1307new::DS1307new()
 uint8_t DS1307new::isPresent(void)         // check if the device is present
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);                     
+  Wire.write((uint8_t)0x00);
   if (Wire.endTransmission() == 0) return 1;
   return 0;
 }
@@ -53,26 +52,26 @@ uint8_t DS1307new::isPresent(void)         // check if the device is present
 void DS1307new::stopClock(void)         // set the ClockHalt bit high to stop the rtc
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);                      // Register 0x00 holds the oscillator start/stop bit
+  Wire.write((uint8_t)0x00);                      // Register 0x00 holds the oscillator start/stop bit
   Wire.endTransmission();
   Wire.requestFrom(DS1307_ID, 1);
-  second = Wire.receive() | 0x80;       // save actual seconds and OR sec with bit 7 (sart/stop bit) = clock stopped
+  second = Wire.read() | 0x80;       // save actual seconds and OR sec with bit 7 (sart/stop bit) = clock stopped
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);
-  Wire.send(second);                    // write seconds back and stop the clock
+  Wire.write((uint8_t)0x00);
+  Wire.write((uint8_t)second);                    // write seconds back and stop the clock
   Wire.endTransmission();
 }
 
 void DS1307new::startClock(void)        // set the ClockHalt bit low to start the rtc
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);                      // Register 0x00 holds the oscillator start/stop bit
+  Wire.write((uint8_t)0x00);                      // Register 0x00 holds the oscillator start/stop bit
   Wire.endTransmission();
   Wire.requestFrom(DS1307_ID, 1);
-  second = Wire.receive() & 0x7f;       // save actual seconds and AND sec with bit 7 (sart/stop bit) = clock started
+  second = Wire.read() & 0x7f;       // save actual seconds and AND sec with bit 7 (sart/stop bit) = clock started
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);
-  Wire.send(second);                    // write seconds back and start the clock
+  Wire.write((uint8_t)0x00);
+  Wire.write((uint8_t)second);                    // write seconds back and start the clock
   Wire.endTransmission();
 }
 
@@ -80,17 +79,17 @@ void DS1307new::startClock(void)        // set the ClockHalt bit low to start th
 void DS1307new::getTime(void)
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);
+  Wire.write((uint8_t)0x00);
   Wire.endTransmission();
   Wire.requestFrom(DS1307_ID, 7);       // request secs, min, hour, dow, day, month, year
-  second = bcd2dec(Wire.receive() & 0x7f);// aquire seconds...
-  minute = bcd2dec(Wire.receive());     // aquire minutes
-  hour = bcd2dec(Wire.receive());       // aquire hours
-  dow = bcd2dec(Wire.receive());        // aquire dow (Day Of Week)
+  second = bcd2dec(Wire.read() & 0x7f);// aquire seconds...
+  minute = bcd2dec(Wire.read());     // aquire minutes
+  hour = bcd2dec(Wire.read());       // aquire hours
+  dow = bcd2dec(Wire.read());        // aquire dow (Day Of Week)
   dow--;							//  correction from RTC format (1..7) to lib format (0..6). Useless, because it will be overwritten
-  day = bcd2dec(Wire.receive());       // aquire day
-  month = bcd2dec(Wire.receive());      // aquire month
-  year = bcd2dec(Wire.receive());       // aquire year...
+  day = bcd2dec(Wire.read());       // aquire day
+  month = bcd2dec(Wire.read());      // aquire month
+  year = bcd2dec(Wire.read());       // aquire year...
   year = year + 2000;                   // ...and assume that we are in 21st century!
   
   // recalculate all other values
@@ -104,14 +103,14 @@ void DS1307new::getTime(void)
 void DS1307new::setTime(void)
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x00);
-  Wire.send(dec2bcd(second) | 0x80);   // set seconds (clock is stopped!)
-  Wire.send(dec2bcd(minute));           // set minutes
-  Wire.send(dec2bcd(hour) & 0x3f);      // set hours (24h clock!)
-  Wire.send(dec2bcd(dow+1));              // set dow (Day Of Week), do conversion from internal to RTC format
-  Wire.send(dec2bcd(day));             // set day
-  Wire.send(dec2bcd(month));            // set month
-  Wire.send(dec2bcd(year-2000));             // set year
+  Wire.write((uint8_t)0x00);
+  Wire.write(dec2bcd(second) | 0x80);   // set seconds (clock is stopped!)
+  Wire.write(dec2bcd(minute));           // set minutes
+  Wire.write(dec2bcd(hour) & 0x3f);      // set hours (24h clock!)
+  Wire.write(dec2bcd(dow+1));              // set dow (Day Of Week), do conversion from internal to RTC format
+  Wire.write(dec2bcd(day));             // set day
+  Wire.write(dec2bcd(month));            // set month
+  Wire.write(dec2bcd(year-2000));             // set year
   Wire.endTransmission();
 }
 
@@ -119,22 +118,22 @@ void DS1307new::setTime(void)
 void DS1307new::getCTRL(void)
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x07);                      // set CTRL Register Address
+  Wire.write((uint8_t)0x07);                      // set CTRL Register Address
   Wire.endTransmission();
   Wire.requestFrom(DS1307_ID, 1);       // read only CTRL Register
   while(!Wire.available())
   {
     // waiting
   }
-  ctrl = Wire.receive();                // ... and store it in ctrl
+  ctrl = Wire.read();                // ... and store it in ctrl
 }
 
 // Set data to CTRL Register of the DS1307 (0x07)
 void DS1307new::setCTRL(void)
 {
   Wire.beginTransmission(DS1307_ID);
-  Wire.send(0x07);                      // set CTRL Register Address
-  Wire.send(ctrl);                      // set CTRL Register
+  Wire.write((uint8_t)0x07);                      // set CTRL Register Address
+  Wire.write((uint8_t)ctrl);                      // set CTRL Register
   Wire.endTransmission();
 }
 
@@ -144,7 +143,7 @@ void DS1307new::getRAM(uint8_t rtc_addr, uint8_t * rtc_ram, uint8_t rtc_quantity
   Wire.beginTransmission(DS1307_ID);
   rtc_addr &= 63;                       // avoid wrong adressing. Adress 0x08 is now address 0x00...
   rtc_addr += 8;                        // ... and address 0x3f is now 0x38
-  Wire.send(rtc_addr);                  // set CTRL Register Address
+  Wire.write(rtc_addr);                  // set CTRL Register Address
   if ( Wire.endTransmission() != 0 )
     return;
   Wire.requestFrom(DS1307_ID, (int)rtc_quantity);
@@ -154,7 +153,7 @@ void DS1307new::getRAM(uint8_t rtc_addr, uint8_t * rtc_ram, uint8_t rtc_quantity
   }
   for(int i=0; i<rtc_quantity; i++)     // Read x data from given address upwards...
   {
-    rtc_ram[i] = Wire.receive();        // ... and store it in rtc_ram
+    rtc_ram[i] = Wire.read();        // ... and store it in rtc_ram
   }
 }
 
@@ -164,10 +163,10 @@ void DS1307new::setRAM(uint8_t rtc_addr, uint8_t * rtc_ram, uint8_t rtc_quantity
   Wire.beginTransmission(DS1307_ID);
   rtc_addr &= 63;                       // avoid wrong adressing. Adress 0x08 is now address 0x00...
   rtc_addr += 8;                        // ... and address 0x3f is now 0x38
-  Wire.send(rtc_addr);                  // set RAM start Address 
+  Wire.write(rtc_addr);                  // set RAM start Address 
   for(int i=0; i<rtc_quantity; i++)     // Send x data from given address upwards...
   {
-    Wire.send(rtc_ram[i]);              // ... and send it from rtc_ram to the RTC Chip
+    Wire.write(rtc_ram[i]);              // ... and send it from rtc_ram to the RTC Chip
   }
   Wire.endTransmission();
 }
