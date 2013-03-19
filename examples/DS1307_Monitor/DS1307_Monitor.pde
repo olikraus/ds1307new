@@ -179,7 +179,7 @@ uint8_t mon_get_time(void)
 uint8_t mon_get_date_time(void)
 {
   char *mon_ptr;
-  uint16_t v;
+  //uint16_t v;
   
   mon_is_date = 0;
   mon_year = 2000;
@@ -195,7 +195,8 @@ uint8_t mon_get_date_time(void)
   for(;;)
   {
     mon_ptr = mon_curr;
-    v = mon_get_value();
+    mon_skip_space();
+    //v = mon_get_value();
     if ( mon_check(':') != 0 )
     {
       mon_curr = mon_ptr;
