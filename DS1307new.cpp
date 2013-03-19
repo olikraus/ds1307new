@@ -247,7 +247,7 @@ uint8_t DS1307new::isMEZSummerTime(void)
   current_time = time2000;
   
   // calculate start of summer time
-  fillByYMD(year, 3, 30);
+  fillByYMD(year, 3, 31);		// bugfix: Change from 30 to 31 because March has 31 days
   fillByHMS(2,0,0);
   fillByCDN(RTC.cdn - RTC.dow);	// sunday before
   summer_start = time2000;
